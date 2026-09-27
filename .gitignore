@@ -55,3 +55,4 @@ flake.lock
 .envrc
 .flutter_sdk
 linux
+web

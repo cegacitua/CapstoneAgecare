@@ -42,13 +42,24 @@ class PushService {
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
-    await _local.initialize(
-      const InitializationSettings(android: androidInit, iOS: iosInit),
-      onDidReceiveNotificationResponse: (resp) {
-        final payload = resp.payload;
-        if (payload != null) _taps.add(_parse(payload));
-      },
+    const linuxInit = LinuxInitializationSettings(
+      defaultActionName: 'Open notification',
     );
+    try {
+      await _local.initialize(
+        const InitializationSettings(
+          android: androidInit,
+          iOS: iosInit,
+          linux: linuxInit,
+        ),
+        onDidReceiveNotificationResponse: (resp) {
+          final payload = resp.payload;
+          if (payload != null) _taps.add(_parse(payload));
+        },
+      );
+    } catch (e) {
+      // Ignorar o registrar error en plataformas que no soportan notificaciones locales
+    }
 
     if (enableRemote) {
       try {
