@@ -54,3 +54,4 @@ flake.lock
 .direnv
 .envrc
 .flutter_sdk
+linux
