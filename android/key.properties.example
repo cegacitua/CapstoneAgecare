@@ -1,0 +1,7 @@
+# Ejemplo de plantilla para la configuración de firma de la app Android (AgeCare)
+# Copia este archivo como 'key.properties' en la carpeta android/ y completa los datos de tu Keystore.
+
+storePassword=agecare_release_password
+keyPassword=agecare_release_password
+keyAlias=upload
+storeFile=upload-keystore.jks
