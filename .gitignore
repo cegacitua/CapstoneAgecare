@@ -56,3 +56,8 @@ flake.lock
 .flutter_sdk
 linux
 web
+
+# Android Release Signing Keys
+**/android/key.properties
+*.jks
+*.keystore
