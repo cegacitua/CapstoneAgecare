@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:meta/meta.dart';
 
 import '../config/app_config.dart';
 import '../storage/token_storage.dart';
@@ -44,13 +45,22 @@ class ApiException implements Exception {
 
 /// Cliente HTTP con renovación automática del access token.
 class ApiClient {
-  ApiClient(this._tokens) {
-    _dio = Dio(BaseOptions(
-      baseUrl: AppConfig.apiBaseUrl + AppConfig.apiVersion,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 20),
-      headers: {'Content-Type': 'application/json'},
-    ));
+  /// [dio] y [refreshDio] solo existen para reemplazar el cliente HTTP real
+  /// por uno falso en los tests (ver test/core/network/api_client_test.dart).
+  /// En la app nunca se pasan: se arman con la configuración normal.
+  ApiClient(
+    this._tokens, {
+    @visibleForTesting Dio? dio,
+    @visibleForTesting Dio? refreshDio,
+  }) : _refreshDio = refreshDio ??
+            Dio(BaseOptions(baseUrl: AppConfig.apiBaseUrl + AppConfig.apiVersion)) {
+    _dio = dio ??
+        Dio(BaseOptions(
+          baseUrl: AppConfig.apiBaseUrl + AppConfig.apiVersion,
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 20),
+          headers: {'Content-Type': 'application/json'},
+        ));
 
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
@@ -85,6 +95,7 @@ class ApiClient {
 
   final TokenStorage _tokens;
   late final Dio _dio;
+  final Dio _refreshDio;
 
   /// Callback para que la capa de auth reaccione al vencimiento de sesión.
   void Function()? onSessionExpired;
@@ -96,8 +107,7 @@ class ApiClient {
     final refresh = await _tokens.refreshToken;
     if (refresh == null) return false;
     try {
-      final res = await Dio(BaseOptions(baseUrl: AppConfig.apiBaseUrl + AppConfig.apiVersion))
-          .post('/auth/refresh', data: {'refresh_token': refresh});
+      final res = await _refreshDio.post('/auth/refresh', data: {'refresh_token': refresh});
       await _tokens.save(
         access: res.data['access_token'] as String,
         refresh: res.data['refresh_token'] as String,
