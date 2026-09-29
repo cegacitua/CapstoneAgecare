@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -30,6 +31,7 @@ import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/shell/main_shell.dart';
 import '../../features/shell/splash_screen.dart';
 import '../../features/wearable/presentation/wearable_link_screen.dart';
+import '../../features/dev/presentation/theme_gallery_screen.dart';
 
 /// Rutas públicas (accesibles sin sesión).
 const _publicRoutes = {'/login', '/register', '/recover', '/splash'};
@@ -146,6 +148,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       // Alias usado desde ProfileScreen.
       GoRoute(path: '/profile/notifications', builder: (_, __) => const NotificationSettingsScreen()),
       GoRoute(path: '/premium', builder: (_, __) => const PremiumScreen()),
+
+      // --- Solo desarrollo: catálogo del design system (AGE-105) ---
+      if (kDebugMode)
+        GoRoute(
+          path: '/dev/gallery',
+          builder: (_, __) => const ThemeGalleryScreen(),
+        ),
     ],
   );
 });
