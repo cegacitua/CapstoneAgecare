@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/network/upload_service.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/common.dart';
 import '../application/caregiver_providers.dart';
 import '../data/caregiver_repository.dart';
