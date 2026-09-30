@@ -24,6 +24,7 @@ import '../../features/medications/presentation/medication_plan_screen.dart';
 import '../../features/medications/presentation/prescription_scan_screen.dart';
 import '../../features/patients/presentation/create_patient_screen.dart';
 import '../../features/patients/presentation/invite_member_screen.dart';
+import '../../features/patients/presentation/care_circle_screen.dart';
 import '../../features/premium/presentation/premium_screen.dart';
 import '../../features/profile/presentation/notification_settings_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
@@ -80,6 +81,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       // --- Pacientes ---
       GoRoute(path: '/patients/create', builder: (_, __) => const CreatePatientScreen()),
+      GoRoute(path: '/patients/circle', builder: (_, __) => const CareCircleScreen()),
       // Invita al miembro sobre el paciente seleccionado (selectedPatientProvider).
       GoRoute(path: '/invite', builder: (_, __) => const InviteMemberScreen()),
 

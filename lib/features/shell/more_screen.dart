@@ -23,6 +23,8 @@ class MoreScreen extends ConsumerWidget {
           () => context.push('/documents$pq')),
       _MoreItem(Icons.storefront_outlined, 'Marketplace de cuidado',
           () => context.push('/marketplace')),
+      _MoreItem(Icons.groups_outlined, 'Círculo de Cuidado (Permisos)',
+          () => context.push('/patients/circle')),
       if (role == RoleType.family)
         _MoreItem(Icons.group_add_outlined, 'Invitar al círculo de cuidado',
             () => context.push('/invite')),
