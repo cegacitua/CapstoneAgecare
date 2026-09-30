@@ -150,3 +150,50 @@ class Invitation {
         expiresAt: DateTime.parse(json['expires_at'] as String),
       );
 }
+
+enum InvitationState {
+  pending('pending', 'Pendiente'),
+  accepted('accepted', 'Aceptada'),
+  expired('expired', 'Vencida');
+
+  const InvitationState(this.apiValue, this.label);
+  final String apiValue;
+  final String label;
+
+  static InvitationState fromApi(String v) => InvitationState.values.firstWhere(
+        (e) => e.apiValue == v,
+        orElse: () => InvitationState.pending,
+      );
+}
+
+class CircleMember {
+  const CircleMember({
+    required this.memberId,
+    required this.fullName,
+    required this.email,
+    required this.role,
+    required this.status,
+    required this.joinedAt,
+  });
+
+  final String memberId;
+  final String fullName;
+  final String email;
+  final RoleType role;
+  final InvitationState status;
+  final DateTime joinedAt;
+
+  bool get isPending => status == InvitationState.pending;
+  bool get isExpired => status == InvitationState.expired;
+  bool get isAccepted => status == InvitationState.accepted;
+
+  factory CircleMember.fromJson(Map<String, dynamic> json) => CircleMember(
+        memberId: json['member_id'] as String,
+        fullName: json['full_name'] as String,
+        email: json['email'] as String,
+        role: RoleType.fromApi((json['role'] ?? 'caregiver') as String),
+        status: InvitationState.fromApi((json['status'] ?? 'accepted') as String),
+        joinedAt: DateTime.parse(json['joined_at'] as String),
+      );
+}
+
