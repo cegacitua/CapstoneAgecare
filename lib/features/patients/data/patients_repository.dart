@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/app_config.dart';
@@ -15,7 +17,9 @@ abstract class PatientsRepository {
     required RoleType role,
     String? email,
   });
-  Future<void> acceptInvitation(String token);
+  /// Valida el código de 6 dígitos y vincula al usuario actual al círculo
+  /// de cuidado del paciente. Devuelve la tarjeta del paciente ya vinculado.
+  Future<PatientCard> acceptInvitation(String code);
   Future<WearableStatus> wearableStatus(String patientId);
 }
 
@@ -58,8 +62,13 @@ class PatientsRepositoryHttp implements PatientsRepository {
   }
 
   @override
-  Future<void> acceptInvitation(String token) =>
-      _api.post<void>('/invitations/accept', data: {'token': token});
+  Future<PatientCard> acceptInvitation(String code) async {
+    final res = await _api.post<Map<String, dynamic>>(
+      '/invitations/accept',
+      data: {'code': code},
+    );
+    return PatientCard.fromJson(res);
+  }
 
   @override
   Future<WearableStatus> wearableStatus(String patientId) async {
@@ -101,25 +110,31 @@ class PatientsRepositoryMock implements PatientsRepository {
     ),
   };
 
+  final List<PatientCard> _myPatients = [
+    const PatientCard(
+      patientId: 'p-elena',
+      fullName: 'Elena Ramírez',
+      role: RoleType.family,
+      wellbeingStatus: WellbeingStatus.ok,
+    ),
+    const PatientCard(
+      patientId: 'p-jose',
+      fullName: 'José Ramírez',
+      role: RoleType.family,
+      wellbeingStatus: WellbeingStatus.warning,
+      activeAlertsCount: 1,
+      topReason: 'Wearable sin datos desde hace 3 h',
+    ),
+  ];
+
+  /// Código de 6 dígitos -> invitación pendiente. Un código se usa una sola vez.
+  final Map<String, ({String patientId, RoleType role, DateTime expiresAt})>
+      _pendingInvitations = {};
+
   @override
   Future<List<PatientCard>> listMyPatients() async {
     await Future.delayed(const Duration(milliseconds: 350));
-    return [
-      const PatientCard(
-        patientId: 'p-elena',
-        fullName: 'Elena Ramírez',
-        role: RoleType.family,
-        wellbeingStatus: WellbeingStatus.ok,
-      ),
-      const PatientCard(
-        patientId: 'p-jose',
-        fullName: 'José Ramírez',
-        role: RoleType.family,
-        wellbeingStatus: WellbeingStatus.warning,
-        activeAlertsCount: 1,
-        topReason: 'Wearable sin datos desde hace 3 h',
-      ),
-    ];
+    return List.unmodifiable(_myPatients);
   }
 
   @override
@@ -155,18 +170,59 @@ class PatientsRepositoryMock implements PatientsRepository {
   Future<Invitation> invite(
       {required String patientId, required RoleType role, String? email}) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    final token = 'inv-${DateTime.now().millisecondsSinceEpoch}';
+    final code = _generateUnusedCode();
+    final expiresAt = DateTime.now().add(const Duration(hours: 48));
+    _pendingInvitations[code] =
+        (patientId: patientId, role: role, expiresAt: expiresAt);
     return Invitation(
-      invitationId: 'i-1',
-      token: token,
-      inviteUrl: 'https://app.agecare.app/invite/$token',
-      expiresAt: DateTime.now().add(const Duration(days: 7)),
+      invitationId: 'i-$code',
+      code: code,
+      role: role,
+      expiresAt: expiresAt,
     );
   }
 
+  /// 6 dígitos (000000-999999, con ceros a la izquierda), sin choques con
+  /// un código todavía pendiente.
+  String _generateUnusedCode() {
+    final random = Random();
+    late String code;
+    do {
+      code = random.nextInt(1000000).toString().padLeft(6, '0');
+    } while (_pendingInvitations.containsKey(code));
+    return code;
+  }
+
   @override
-  Future<void> acceptInvitation(String token) async {
+  Future<PatientCard> acceptInvitation(String code) async {
     await Future.delayed(const Duration(milliseconds: 300));
+    final invitation = _pendingInvitations[code];
+    if (invitation == null) {
+      throw ApiException(
+        statusCode: 404,
+        code: 'INVALID_CODE',
+        message: 'Ese código no es válido. Revísalo con quien te invitó.',
+      );
+    }
+    if (DateTime.now().isAfter(invitation.expiresAt)) {
+      _pendingInvitations.remove(code);
+      throw ApiException(
+        statusCode: 410,
+        code: 'EXPIRED_CODE',
+        message: 'Este código venció. Pide uno nuevo.',
+      );
+    }
+    final patient = await getPatient(invitation.patientId);
+    final card = PatientCard(
+      patientId: patient.patientId,
+      fullName: patient.fullName,
+      role: invitation.role,
+      wellbeingStatus: WellbeingStatus.ok,
+    );
+    _myPatients.removeWhere((c) => c.patientId == patient.patientId);
+    _myPatients.add(card);
+    _pendingInvitations.remove(code); // un solo uso
+    return card;
   }
 
   @override

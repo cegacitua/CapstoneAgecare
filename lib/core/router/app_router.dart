@@ -23,6 +23,7 @@ import '../../features/marketplace/presentation/marketplace_screen.dart';
 import '../../features/medications/presentation/dose_confirm_screen.dart';
 import '../../features/medications/presentation/medication_plan_screen.dart';
 import '../../features/medications/presentation/prescription_scan_screen.dart';
+import '../../features/patients/presentation/accept_invitation_screen.dart';
 import '../../features/patients/presentation/create_patient_screen.dart';
 import '../../features/patients/presentation/invite_member_screen.dart';
 import '../../features/premium/presentation/premium_screen.dart';
@@ -84,6 +85,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/patients/create', builder: (_, __) => const CreatePatientScreen()),
       // Invita al miembro sobre el paciente seleccionado (selectedPatientProvider).
       GoRoute(path: '/invite', builder: (_, __) => const InviteMemberScreen()),
+      // Lado del invitado: ingresar el código de 6 dígitos (AGE-205 / DAC05-7).
+      GoRoute(
+          path: '/invite/accept',
+          builder: (_, __) => const AcceptInvitationScreen()),
 
       // --- Medicamentos ---
       GoRoute(

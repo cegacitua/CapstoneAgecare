@@ -130,23 +130,28 @@ class NewPatient {
       };
 }
 
+/// Invitación al círculo de cuidado (AGE-205 / DAC05-7): un código numérico
+/// de 6 dígitos, no un enlace — vence 48 h después de crearse.
 class Invitation {
   const Invitation({
     required this.invitationId,
-    required this.token,
-    required this.inviteUrl,
+    required this.code,
+    required this.role,
     required this.expiresAt,
   });
 
   final String invitationId;
-  final String token;
-  final String inviteUrl;
+  final String code;
+  final RoleType role;
   final DateTime expiresAt;
+
+  Duration get timeLeft => expiresAt.difference(DateTime.now());
+  bool get isExpired => timeLeft.isNegative;
 
   factory Invitation.fromJson(Map<String, dynamic> json) => Invitation(
         invitationId: json['invitation_id'] as String,
-        token: json['token'] as String,
-        inviteUrl: json['invite_url'] as String,
+        code: json['code'] as String,
+        role: RoleType.fromApi(json['role'] as String),
         expiresAt: DateTime.parse(json['expires_at'] as String),
       );
 }
