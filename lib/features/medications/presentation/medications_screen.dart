@@ -37,6 +37,7 @@ class MedicationsScreen extends ConsumerWidget {
       floatingActionButton: patient == null
           ? null
           : FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () =>
                   context.push('/meds/plan?patient=${patient.patientId}'),
               icon: const Icon(Icons.add_rounded),

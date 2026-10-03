@@ -32,6 +32,7 @@ class DocumentsScreen extends ConsumerWidget {
       floatingActionButton: effectiveId == null
           ? null
           : FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () => _upload(context, ref, effectiveId),
               icon: const Icon(Icons.upload_file_rounded),
               label: const Text('Subir'),

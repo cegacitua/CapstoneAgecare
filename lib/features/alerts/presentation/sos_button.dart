@@ -110,6 +110,7 @@ class _SosButtonState extends ConsumerState<SosButton> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
+      heroTag: null,
       onPressed: _sending ? null : _onPressed,
       backgroundColor: AppColors.critical,
       foregroundColor: Colors.white,

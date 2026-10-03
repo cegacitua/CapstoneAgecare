@@ -23,6 +23,7 @@ class CaregiverTasksScreen extends ConsumerWidget {
       floatingActionButton: patient == null
           ? null
           : FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () =>
                   context.push('/cg/task?patient=${patient.patientId}'),
               icon: const Icon(Icons.add_rounded),

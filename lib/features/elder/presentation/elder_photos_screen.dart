@@ -32,6 +32,7 @@ class ElderPhotosScreen extends ConsumerWidget {
       floatingActionButton: patientId == null
           ? null
           : FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () => _addPhoto(context, ref, patientId),
               backgroundColor: AppColors.primary,
               icon: const Icon(Icons.add_a_photo_rounded, size: 30),
