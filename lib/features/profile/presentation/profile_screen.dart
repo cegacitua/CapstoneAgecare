@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -215,6 +216,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         onTap: () =>
                             context.push('/profile/notifications'),
                       ),
+                      if (kDebugMode) ...[
+                        const Divider(height: 1),
+                        ListTile(
+                          leading: const Icon(Icons.palette_outlined,
+                              color: AppColors.primary),
+                          title: const Text('Design system'),
+                          subtitle: const Text('Solo visible en modo debug'),
+                          trailing:
+                              const Icon(Icons.chevron_right_rounded),
+                          onTap: () => context.push('/dev/gallery'),
+                        ),
+                      ],
                     ],
                   ),
                 ),

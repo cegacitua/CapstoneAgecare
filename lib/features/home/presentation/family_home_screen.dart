@@ -8,12 +8,12 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/common.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../patients/application/patients_providers.dart';
-import '../../patients/domain/models.dart';
 import '../application/home_providers.dart';
 import '../domain/models.dart';
 
-/// Inicio del familiar: saludo, selector multi-paciente, semáforo del día,
-/// accesos rápidos, estado del wearable, vitals y adherencia.
+/// Inicio del familiar: saludo, semáforo del día, accesos rápidos, estado
+/// del wearable, vitals y adherencia. El selector multi-paciente vive en la
+/// barra superior de [MainShell] (AGE-206).
 class FamilyHomeScreen extends ConsumerWidget {
   const FamilyHomeScreen({super.key});
 
@@ -57,8 +57,6 @@ class FamilyHomeScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
                 children: [
                   _Greeting(name: user?.fullName),
-                  const SizedBox(height: 16),
-                  _PatientSelector(patients: patients, selected: selected),
                   const SizedBox(height: 16),
                   const _TodayCard(),
                   const SizedBox(height: 16),
@@ -124,48 +122,6 @@ class _Greeting extends StatelessWidget {
     final month = months[d.month - 1];
     final capitalized = day[0].toUpperCase() + day.substring(1);
     return '$capitalized ${d.day} de $month';
-  }
-}
-
-class _PatientSelector extends ConsumerWidget {
-  const _PatientSelector({required this.patients, required this.selected});
-
-  final List<PatientCard> patients;
-  final PatientCard? selected;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (patients.length < 2) return const SizedBox.shrink();
-    return SizedBox(
-      height: 44,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: patients.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, i) {
-          final p = patients[i];
-          final isSelected = p.patientId == selected?.patientId;
-          return ChoiceChip(
-            selected: isSelected,
-            onSelected: (_) =>
-                ref.read(selectedPatientProvider.notifier).select(p),
-            avatar: Icon(p.wellbeingStatus.icon,
-                size: 18, color: p.wellbeingStatus.color),
-            label: Text(p.fullName),
-            labelStyle: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: isSelected ? AppColors.primaryDark : AppColors.textPrimary,
-            ),
-            selectedColor: AppColors.primary.withOpacity(.12),
-            backgroundColor: AppColors.surface,
-            shape: StadiumBorder(
-              side: BorderSide(
-                  color: isSelected ? AppColors.primary : AppColors.divider),
-            ),
-          );
-        },
-      ),
-    );
   }
 }
 

@@ -12,6 +12,7 @@ import '../health/presentation/health_screen.dart';
 import '../home/presentation/family_home_screen.dart';
 import '../medications/presentation/medications_screen.dart';
 import 'more_screen.dart';
+import 'patient_selector_bar.dart';
 
 /// Contenedor principal con navegación inferior según el rol del usuario.
 /// - familiar/médico: Inicio · Salud · Medicamentos · Comunicación · Más
@@ -40,9 +41,19 @@ class _MainShellState extends ConsumerState<MainShell> {
     final safeIndex = _index.clamp(0, tabs.length - 1);
 
     return Scaffold(
-      body: IndexedStack(
-        index: safeIndex,
-        children: [for (final t in tabs) t.screen],
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            const PatientSelectorBar(),
+            Expanded(
+              child: IndexedStack(
+                index: safeIndex,
+                children: [for (final t in tabs) t.screen],
+              ),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: safeIndex,

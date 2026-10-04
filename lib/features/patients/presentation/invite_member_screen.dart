@@ -95,45 +95,64 @@ class _InviteMemberScreenState extends ConsumerState<InviteMemberScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Correo (opcional)',
                       prefixIcon: Icon(Icons.mail_outline),
-                      helperText:
-                          'Si lo dejas vacío, obtendrás un enlace para compartir por WhatsApp u otro medio.',
+                      helperText: 'Para identificar a quién invitaste. El código '
+                          'se comparte aparte, por el medio que prefieras.',
                       helperMaxLines: 2,
                     ),
                   ),
                   const SizedBox(height: 24),
                   FilledButton(
                     onPressed: _loading ? null : _submit,
-                    child: const Text('Crear invitación'),
+                    child: const Text('Generar código'),
                   ),
                   if (_created != null) ...[
                     const SizedBox(height: 24),
                     AppCard(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.check_circle, color: AppColors.statusOk),
-                              SizedBox(width: 8),
-                              Text('Invitación creada',
-                                  style: TextStyle(fontWeight: FontWeight.w700)),
+                              const Icon(Icons.check_circle, color: AppColors.statusOk),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Código para ${_created!.role.label.toLowerCase()}',
+                                style: const TextStyle(fontWeight: FontWeight.w700),
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(_created!.inviteUrl,
+                          const SizedBox(height: 16),
+                          Center(
+                            child: Text(
+                              _created!.code,
                               style: const TextStyle(
-                                  color: AppColors.textSecondary, fontSize: 13)),
-                          const SizedBox(height: 12),
+                                fontSize: 36,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 8,
+                                color: AppColors.primaryDark,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Center(
+                            child: Text(
+                              'Vence en 48 horas · compártelo solo con esa persona',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: AppColors.textSecondary, fontSize: 13),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
                           OutlinedButton.icon(
                             onPressed: () async {
                               await Clipboard.setData(
-                                  ClipboardData(text: _created!.inviteUrl));
+                                  ClipboardData(text: _created!.code));
                               if (context.mounted) {
-                                showAppSnackBar(context, 'Enlace copiado');
+                                showAppSnackBar(context, 'Código copiado');
                               }
                             },
                             icon: const Icon(Icons.copy_rounded, size: 18),
-                            label: const Text('Copiar enlace'),
+                            label: const Text('Copiar código'),
                           ),
                         ],
                       ),

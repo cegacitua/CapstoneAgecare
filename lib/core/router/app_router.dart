@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +23,7 @@ import '../../features/marketplace/presentation/marketplace_screen.dart';
 import '../../features/medications/presentation/dose_confirm_screen.dart';
 import '../../features/medications/presentation/medication_plan_screen.dart';
 import '../../features/medications/presentation/prescription_scan_screen.dart';
+import '../../features/patients/presentation/accept_invitation_screen.dart';
 import '../../features/patients/presentation/create_patient_screen.dart';
 import '../../features/patients/presentation/invite_member_screen.dart';
 import '../../features/patients/presentation/care_circle_screen.dart';
@@ -31,6 +33,7 @@ import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/shell/main_shell.dart';
 import '../../features/shell/splash_screen.dart';
 import '../../features/wearable/presentation/wearable_link_screen.dart';
+import '../../features/dev/presentation/theme_gallery_screen.dart';
 
 /// Rutas públicas (accesibles sin sesión).
 const _publicRoutes = {'/login', '/register', '/recover', '/splash'};
@@ -84,6 +87,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/patients/circle', builder: (_, __) => const CareCircleScreen()),
       // Invita al miembro sobre el paciente seleccionado (selectedPatientProvider).
       GoRoute(path: '/invite', builder: (_, __) => const InviteMemberScreen()),
+      // Lado del invitado: ingresar el código de 6 dígitos (AGE-205 / DAC05-7).
+      GoRoute(
+          path: '/invite/accept',
+          builder: (_, __) => const AcceptInvitationScreen()),
 
       // --- Medicamentos ---
       GoRoute(
@@ -148,6 +155,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       // Alias usado desde ProfileScreen.
       GoRoute(path: '/profile/notifications', builder: (_, __) => const NotificationSettingsScreen()),
       GoRoute(path: '/premium', builder: (_, __) => const PremiumScreen()),
+
+      // --- Solo desarrollo: catálogo del design system (AGE-105) ---
+      if (kDebugMode)
+        GoRoute(
+          path: '/dev/gallery',
+          builder: (_, __) => const ThemeGalleryScreen(),
+        ),
     ],
   );
 });

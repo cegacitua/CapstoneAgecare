@@ -408,9 +408,8 @@ class _JobCard extends StatelessWidget {
 // Widgets auxiliares
 // ---------------------------------------------------------------------------
 class _RatingStars extends StatelessWidget {
-  const _RatingStars({required this.rating, this.size = 16});
+  const _RatingStars({required this.rating});
   final double rating;
-  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -422,7 +421,7 @@ class _RatingStars extends StatelessWidget {
             i <= rating.round()
                 ? Icons.star_rounded
                 : Icons.star_border_rounded,
-            size: size,
+            size: 16,
             color: AppColors.statusWarning,
           ),
       ],
