@@ -12,6 +12,8 @@ jobs:
   build:
     name: Build Flutter APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: 📥 Clonar repositorio
@@ -39,9 +41,18 @@ jobs:
           --dart-define=USE_MOCKS=false \
           --dart-define=API_BASE_URL=https://agecare.open-cluster.org
 
-      - name: 📤 Subir APK compilado
+      - name: 📤 Subir APK compilado a Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: agecare-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 7 # GitHub guardará el archivo por una semana
+
+      - name: 🚀 Publicar en sección "Releases"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "build-${{ github.run_number }}"
+          name: "AgeCare APK (Build ${{ github.run_number }})"
+          body: "Compilación automática generada desde la rama ${{ github.ref_name }}."
+          prerelease: true
+          files: build/app/outputs/flutter-apk/app-release.apk
