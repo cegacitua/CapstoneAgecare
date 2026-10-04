@@ -31,7 +31,12 @@ class _SinglePatientRepo implements PatientsRepository {
   Future<List<PatientCard>> listMyPatients() async => const [_only];
 
   @override
-  Future<Patient> getPatient(String patientId) => throw UnimplementedError();
+  Future<Patient> getPatient(String patientId) async => Patient(
+        patientId: 'p-unico',
+        fullName: 'Mario Soto',
+        birthDate: DateTime(1950, 1, 1),
+        sex: 'male',
+      );
 
   @override
   Future<Patient> createPatient(NewPatient data) => throw UnimplementedError();
@@ -47,6 +52,22 @@ class _SinglePatientRepo implements PatientsRepository {
 
   @override
   Future<WearableStatus> wearableStatus(String patientId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<List<CircleMember>> listCircleMembers(String patientId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Invitation> resendInvitation(String patientId, String memberId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> revokeInvitation(String patientId, String memberId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> revokeMember(String patientId, String memberId) =>
       throw UnimplementedError();
 }
 
@@ -76,6 +97,7 @@ void main() {
       overrides: [patientsRepositoryProvider.overrideWithValue(repo)],
       child: MaterialApp(theme: AppTheme.light(), home: const _Harness()),
     ));
+    await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
   }
 
@@ -125,6 +147,7 @@ void main() {
       'al cambiar de paciente activo, los providers que dependen de el refrescan solos sus datos',
       (tester) async {
     await pumpHarness(tester, PatientsRepositoryMock());
+    await tester.pump(const Duration(seconds: 1));
 
     // selectedPatientDetailProvider ya cargó el detalle de Elena (1er paciente).
     expect(find.text('detalle:Elena Ramírez'), findsOneWidget);
@@ -133,6 +156,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('patientSelectorBar_option_p-jose')));
     await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
 
     // Sin invalidar nada a mano: selectedPatientDetailProvider observa
     // selectedPatientProvider y se reconstruyó solo con el nuevo paciente.

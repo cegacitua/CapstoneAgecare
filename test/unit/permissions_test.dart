@@ -26,8 +26,7 @@ void main() {
         email: 'nueva.cuidadora@agecare.app',
       );
 
-      expect(invitation.inviteUrl, isNotEmpty);
-      expect(invitation.token, isNotEmpty);
+      expect(invitation.code, isNotEmpty);
 
       final members = await patientsRepo.listCircleMembers('p-elena');
       expect(members.any((m) => m.email == 'nueva.cuidadora@agecare.app'), isTrue);
@@ -59,8 +58,7 @@ void main() {
 
       final resentInv = await patientsRepo.resendInvitation('p-elena', pendingMember.memberId);
 
-      expect(resentInv.inviteUrl, contains('inv-resend'));
-      expect(resentInv.token, isNotEmpty);
+      expect(resentInv.code, contains('888'));
     });
   });
 }

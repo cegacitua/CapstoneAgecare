@@ -110,7 +110,7 @@ class _CareCircleScreenState extends ConsumerState<CareCircleScreen> {
       final inv = await ref
           .read(patientsRepositoryProvider)
           .resendInvitation(patient.patientId, member.memberId);
-      await Clipboard.setData(ClipboardData(text: inv.inviteUrl));
+      await Clipboard.setData(ClipboardData(text: inv.code));
       if (mounted) {
         showAppSnackBar(
           context,
