@@ -43,6 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/.flutter_plugin_loader
 
 # Widget Preview related
 .widget_preview/
