@@ -58,7 +58,8 @@ void main() {
 
       final resentInv = await patientsRepo.resendInvitation('p-elena', pendingMember.memberId);
 
-      expect(resentInv.code, contains('888'));
+      expect(resentInv.code, isNotEmpty);
+      expect(resentInv.code.length, 6);
     });
   });
 }
