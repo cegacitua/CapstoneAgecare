@@ -1,0 +1,110 @@
+name: AgeCare CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, master, dev]
+  pull_request:
+    branches: [main, master, dev]
+  workflow_dispatch:
+
+jobs:
+  analyze_and_test:
+    name: Lint, Static Analysis & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: ☕ Configurar Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: 🐦 Configurar Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Instalar dependencias de Dart
+        run: flutter pub get
+
+      - name: 🔍 Analyze code (Linter)
+        run: flutter analyze --no-fatal-infos
+
+      - name: 🧪 Run unit and widget tests
+        run: flutter test
+
+  build_android:
+    name: Build Android APK
+    needs: analyze_and_test
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' # Only build APKs on push to main or manual trigger
+    permissions:
+      contents: write
+    steps:
+      - name: 📥 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: ☕ Configurar Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: 🐦 Configurar Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Instalar dependencias de Dart
+        run: flutter pub get
+
+      - name: 🔨 Compilar APK (Producción)
+        run: |
+          flutter build apk --release \
+          --dart-define=USE_MOCKS=false \
+          --dart-define=API_BASE_URL=https://agecare.open-cluster.org
+
+      - name: 📤 Subir APK compilado a Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: agecare-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
+
+      - name: 🚀 Publicar en sección "Releases"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "build-${{ github.run_number }}"
+          name: "AgeCare APK (Build ${{ github.run_number }})"
+          body: "Compilación automática generada desde la rama ${{ github.ref_name }}."
+          prerelease: true
+          files: build/app/outputs/flutter-apk/app-release.apk
+
+  build_ios:
+    name: Build iOS
+    needs: analyze_and_test
+    runs-on: macos-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: 📥 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: 🐦 Configurar Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Instalar dependencias de Dart
+        run: flutter pub get
+
+      - name: 🔨 Compilar iOS (Sin firma)
+        # Sin firma: todavia no hay certificados de Apple (eso lo cubre AGE-107).
+        # Este paso solo confirma que el codigo Dart/iOS compila exitosamente.
+        run: flutter build ios --release --no-codesign
