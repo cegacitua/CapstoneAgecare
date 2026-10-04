@@ -44,6 +44,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/.flutter_plugin_loader
+/.gradle_home
 
 # Widget Preview related
 .widget_preview/
