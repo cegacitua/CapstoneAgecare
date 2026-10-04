@@ -3,6 +3,7 @@ name: Build Android APK
 on:
   push:
     branches:
+      - app-mobile
       - main
   # Esto permite ejecutar el compilador manualmente desde la página de GitHub cuando quieras
   workflow_dispatch: 
